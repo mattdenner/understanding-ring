@@ -18,14 +18,44 @@
              (wrapped {}) => (contains {:body "edcba"}))
        )
 
-(facts "directed-middleware"
-       (def wrapped
-         (directed-middleware
-           (fn [request] (= (request :url) "left"))
-           (fn [request] "the left")
-           (fn [request] "the right")))
+(facts "forwards-and-backwards"
+       (defn   valid-request [uri]        (forwards-and-backwards {:request-method :get,   :uri uri}))
+       (defn invalid-request [method uri] (forwards-and-backwards {:request-method method, :uri uri}))
 
-       (fact "returns the appropriate result based on the predicate"
-             (wrapped {:url "left"})  => "the left"
-             (wrapped {:url "right"}) => "the right")
+       (fact "/forwards returns forward text"
+             (valid-request "/forwards") => (contains {:body "Hello world!"}))
+       (fact "/backwards returns backwards text"
+             (valid-request "/backwards") => (contains {:body "!dlrow olleH"}))
+       (facts "any other URL causes a 404 Not Found response"
+              (invalid-request :get "/missing")   => (contains {:status 404})
+              (invalid-request :post "/forwards") => (contains {:status 404})
+              )
+       )
+
+(facts "left-and-right"
+       (defn   valid-request [uri]        (left-and-right {:request-method :get,   :uri uri}))
+       (defn invalid-request [method uri] (left-and-right {:request-method method, :uri uri}))
+
+       (fact "/left returns left"
+             (valid-request "/left") => (contains {:body "Left!"}))
+       (fact "/right returns right"
+             (valid-request "/right") => (contains {:body "Right!"}))
+       (facts "any other URI returns nil, which would cause compojure to try another route"
+              (invalid-request :get "/missing") => nil
+              (invalid-request :post "/left")   => nil
+              )
+       )
+
+(facts "app"
+       (defn   valid-request [uri]        (app {:request-method :get,   :uri uri}))
+       (defn invalid-request [method uri] (app {:request-method method, :uri uri}))
+
+       (fact "/forwards returns forward text"
+             (valid-request "/forwards") => (contains {:body "Hello world!"}))
+       (fact "/backwards returns backwards text"
+             (valid-request "/backwards") => (contains {:body "!dlrow olleH"}))
+       (fact "/left returns left"
+             (valid-request "/left") => (contains {:body "Left!"}))
+       (fact "/right returns right"
+             (valid-request "/right") => (contains {:body "Right!"}))
        )

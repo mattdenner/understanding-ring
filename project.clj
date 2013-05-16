@@ -5,8 +5,9 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies     [[org.clojure/clojure     "1.5.1"]
                      [ring/ring-core          "1.1.8"]
-                     [ring/ring-jetty-adapter "1.1.8"]]
+                     [ring/ring-jetty-adapter "1.1.8"]
+                     [compojure               "1.1.5" :exclusions [org.clojure/tools.macro]]]
   :plugins          [[lein-ring               "0.8.5" :exclusions [org.clojure/clojure]]]
-  :dev-dependencies [[ring/ring-devel         "1.1.8"]]
+  :dev-dependencie [[ring/ring-devel         "1.1.8" ]]
   :profiles {:dev {:dependencies [[midje "1.5.0"]]}}
   :ring {:handler understanding-ring.core/app})
